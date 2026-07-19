@@ -2,7 +2,6 @@ from datetime import datetime
 import hashlib
 import os
 from uuid import uuid4
-import sys
 
 from pathlib import Path
 from typing import Optional
@@ -54,6 +53,11 @@ class LocalFileRepository(FileRepository):
 
     def get_from_path(self, file_path: str, hash_type: Optional[FileHashType]) -> File:
         p = Path(file_path)
+
+        if not p.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+        if not p.is_file():
+            raise ValueError(f"Path is not a file: {file_path}")
 
         hash_digest = None
         hash_func = None

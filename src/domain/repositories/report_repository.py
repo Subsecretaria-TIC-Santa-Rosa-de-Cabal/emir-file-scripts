@@ -15,10 +15,19 @@ class ReportRepository(ABC):
         hash_type: FileHashType,
         workers: int,
         file_repository: FileRepository,
+        output_path: Optional[str] = None,
         progress_callback: Optional[Callable[[int,int], None]] = None
     ) -> Report:
         pass
 
     @abstractmethod
-    def verify(self, root_path: str, hash_type: FileHashType) -> CheckedReportInterface:
+    def verify(
+        self,
+        root_path: str,
+        inventory_path: str,
+        hash_type: FileHashType,
+        workers: int,
+        file_repository: FileRepository,
+        progress_callback: Optional[Callable[[int,int], None]] = None
+    ) -> CheckedReportInterface:
         pass

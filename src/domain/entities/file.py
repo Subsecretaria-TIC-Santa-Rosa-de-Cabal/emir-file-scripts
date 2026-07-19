@@ -53,10 +53,6 @@ class File(Base):
         return self.__size
     
     @property
-    def size(self) -> int:
-        return self.__size
-    
-    @property
     def path(self) -> str:
         return self.__path
     

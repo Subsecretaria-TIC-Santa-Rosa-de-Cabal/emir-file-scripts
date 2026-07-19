@@ -1,41 +1,76 @@
+# Disk Integrity Checker
+
+Herramienta de línea de comandos para generar inventarios de archivos con hashes y verificar que no hayan sido modificados, eliminados o agregados después de transferencias o copias de seguridad.
+
+## Instalación
+
 ```bash
 pip install -r requirements.txt
 ```
 
----
+## Configuración
 
-## 📁 Estructura del repositorio
-
-```txt
-├── src/                      # Código principal de los scripts
-├── .env.example              # Ejemplo de archivo de configuración de entorno
-├── requirements.txt          # Dependencias del proyecto
-└── README.md                # Este archivo
-```
-
----
-
-## ⚙️ Configuración
-
-1. **Clonar el repositorio:**
-
-   ```bash
-   git clone https://github.com/Subsecretaria-TIC-Santa-Rosa-de-Cabal/scripts-copias-seguridad.git
-   ```
-
-2. **Copiar y editar el archivo de ejemplo de variables:**
+1. Copiar el archivo de variables de entorno:
 
    ```bash
    cp .env.example .env
-   # Edita .env con tus rutas, credenciales y ajustes de backup
    ```
 
-3. **Instalar dependencias:**
+2. Editar `.env` según el tipo de persistencia deseado:
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+   - `JSON`: define `JSON_DB_FOLDER`.
+   - `MONGODB`: completa los datos de conexión (actualmente no implementado).
 
-4. **Configurar tareas programadas** (por ejemplo, con cron o systemd timers) para ejecutar automáticamente los scripts según tus necesidades.
+## Uso
 
----
+El CLI expone dos comandos: `inventory` y `verify`.
+
+### Generar un inventario
+
+```bash
+python src/presentation/cli/main.py inventory <directorio> \
+  --output-file inventario.json \
+  --hash-algo sha256 \
+  --workers 4
+```
+
+Algoritmos soportados: `sha1`, `sha256`, `sha3_512`, `blake2b`.
+
+### Verificar un directorio contra un inventario
+
+```bash
+python src/presentation/cli/main.py verify <directorio> \
+  --inventory-file inventario.json \
+  --hash-algo sha256 \
+  --workers 4
+```
+
+El comando reporta:
+
+- Archivos modificados (cambió el hash).
+- Archivos faltantes.
+- Archivos agregados.
+- Errores de lectura.
+
+## Estructura del repositorio
+
+```txt
+├── src/                       # Código fuente
+│   ├── domain/                # Entidades y repositorios abstractos
+│   ├── infrastructure/        # Implementaciones de persistencia y almacenamiento
+│   └── presentation/cli/      # Interfaz de línea de comandos
+├── tests/                     # Tests con pytest
+├── .env.example               # Ejemplo de configuración
+├── requirements.txt           # Dependencias
+└── README.md                  # Este archivo
+```
+
+## Tests
+
+```bash
+python -m pytest tests -v
+```
+
+## Automatización
+
+Se recomienda configurar tareas programadas (cron, systemd timers o Task Scheduler) para ejecutar los comandos `inventory` y `verify` periódicamente.
